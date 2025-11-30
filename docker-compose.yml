@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: fieldsurvey
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://user:password@postgres:5432/fieldsurvey
+      JWT_SECRET: production_secret_key
+    depends_on:
+      - postgres
+
+  ai-service:
+    build: ./ai-service
+    ports:
+      - "8000:8000"
+
+  web-dashboard:
+    build: ./web-dashboard
+    ports:
+      - "8080:80" # Mapping to 8080 to avoid conflict if 80 is taken
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

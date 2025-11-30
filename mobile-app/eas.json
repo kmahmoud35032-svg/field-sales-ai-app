@@ -1,0 +1,38 @@
+{
+    "cli": {
+        "version": ">= 3.1.1"
+    },
+    "build": {
+        "production": {
+            "autoIncrement": true,
+            "ios": {
+                "resourceClass": "m-medium"
+            },
+            "android": {
+                "buildType": "app-bundle"
+            },
+            "env": {
+                "EXPO_PUBLIC_API_URL": "https://prince-nonconfiscable-kamilah.ngrok-free.dev/api"
+            }
+        },
+        "development": {
+            "developmentClient": true,
+            "distribution": "internal",
+            "env": {
+                "EXPO_PUBLIC_API_URL": "https://prince-nonconfiscable-kamilah.ngrok-free.dev/api"
+            }
+        },
+        "preview": {
+            "distribution": "internal",
+            "android": {
+                "buildType": "apk"
+            },
+            "env": {
+                "EXPO_PUBLIC_API_URL": "https://prince-nonconfiscable-kamilah.ngrok-free.dev/api"
+            }
+        }
+    },
+    "submit": {
+        "production": {}
+    }
+}

@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  SUPERVISOR
+}
+
+enum ClientType {
+  GROCERY
+  SUPERMARKET
+  HYPERMARKET
+  PHARMACY
+  OTHER
+}
+
+enum VisitStatus {
+  COMPLETED
+  SKIPPED
+  NOT_FOUND
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(SUPERVISOR)
+  region    String?  // Region identifier for filtering clients
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  visits    Visit[]
+}
+
+model Client {
+  id          Int        @id @default(autoincrement())
+  name        String
+  phone       String?
+  address     String?
+  latitude    Float
+  longitude   Float
+  type        ClientType
+  region      String?    // Should match Supervisor's region
+  lastVisit   DateTime?
+  isDeleted   Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  visits      Visit[]
+}
+
+model Visit {
+  id          Int         @id @default(autoincrement())
+  userId      Int
+  clientId    Int
+  user        User        @relation(fields: [userId], references: [id])
+  client      Client      @relation(fields: [clientId], references: [id])
+  date        DateTime    @default(now())
+  status      VisitStatus
+  latitude    Float       // Actual location of visit
+  longitude   Float
+  notes       String?
+  
+  // Planogram Analysis Results
+  shareOfShelf Float?
+  missingSkus  Int?
+  complianceScore Float?
+  
+  photos      VisitPhoto[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model VisitPhoto {
+  id        Int      @id @default(autoincrement())
+  visitId   Int
+  visit     Visit    @relation(fields: [visitId], references: [id])
+  url       String
+  type      String   // SHELF, STORE_FRONT, etc.
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id        Int      @id @default(autoincrement())
+  name      String
+  sku       String   @unique
+  category  String?
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Planogram {
+  id        Int      @id @default(autoincrement())
+  name      String
+  region    String?
+  imageUrl  String
+  config    Json     // JSON description of expected layout
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
